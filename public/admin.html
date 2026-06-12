@@ -516,6 +516,20 @@
             }
         });
 
+        // Update stats silently without overwriting form inputs
+        async function refreshStatsOnly() {
+            try {
+                const response = await fetch('/api/apps');
+                allApps = await response.json();
+                renderAppsList();
+                if (activeSlug && allApps[activeSlug]) {
+                    renderStats(allApps[activeSlug].stats);
+                }
+            } catch (error) {
+                console.error("Error refreshing stats:", error);
+            }
+        }
+
         // Initialize loading
         window.addEventListener("DOMContentLoaded", () => {
             loadApps(true);
@@ -523,7 +537,7 @@
             // Poll for click data stats updates every 8 seconds
             setInterval(() => {
                 if (formModeInput.value === "edit") {
-                    loadApps(false);
+                    refreshStatsOnly();
                 }
             }, 8000);
         });

@@ -58,6 +58,12 @@ const isValidUrl = (str) => {
     }
 };
 
+// Bot Detection Helper
+const isBot = (userAgent) => {
+    if (!userAgent) return true;
+    return /bot|crawler|spider|crawling|facebookexternalhit|slurp|wget|curl|ping|preview|instagram|whatsapp|telegram|discord/i.test(userAgent);
+};
+
 // 1. Admin Page Router: "/admin"
 app.get('/admin', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'admin.html'));
@@ -180,11 +186,12 @@ app.get('/', (req, res) => {
     }
 
     // Increment App Clicks
-    appData.stats[category] = (appData.stats[category] || 0) + 1;
-    appData.stats.totalClicks = (appData.stats.totalClicks || 0) + 1;
-    
-    db.apps[defaultSlug] = appData;
-    saveDatabase(db);
+    if (!isBot(userAgent)) {
+        appData.stats[category] = (appData.stats[category] || 0) + 1;
+        appData.stats.totalClicks = (appData.stats.totalClicks || 0) + 1;
+        db.apps[defaultSlug] = appData;
+        saveDatabase(db);
+    }
 
     // Issue instant redirect
     res.writeHead(302, { 'Location': targetUrl });
@@ -220,11 +227,12 @@ app.get('/:slug', (req, res, next) => {
     }
 
     // Increment App Clicks
-    appData.stats[category] = (appData.stats[category] || 0) + 1;
-    appData.stats.totalClicks = (appData.stats.totalClicks || 0) + 1;
-    
-    db.apps[slug] = appData;
-    saveDatabase(db);
+    if (!isBot(userAgent)) {
+        appData.stats[category] = (appData.stats[category] || 0) + 1;
+        appData.stats.totalClicks = (appData.stats.totalClicks || 0) + 1;
+        db.apps[slug] = appData;
+        saveDatabase(db);
+    }
 
     // Issue instant redirect
     res.writeHead(302, { 'Location': targetUrl });
