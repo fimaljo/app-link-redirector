@@ -64,6 +64,26 @@ const isBot = (userAgent) => {
     return /bot|crawler|spider|crawling|facebookexternalhit|slurp|wget|curl|ping|preview|instagram|whatsapp|telegram|discord/i.test(userAgent);
 };
 
+// Basic Auth Middleware
+const basicAuth = (req, res, next) => {
+    const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
+    const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
+    
+    const b64auth = (req.headers.authorization || '').split(' ')[1] || '';
+    const [login, password] = Buffer.from(b64auth, 'base64').toString().split(':');
+
+    if (login === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+        return next();
+    }
+
+    res.set('WWW-Authenticate', 'Basic realm="Admin Access Required"');
+    res.status(401).send('Authentication required. Please enter username and password.');
+};
+
+// Protect Admin Dashboard and Configuration API
+app.use('/admin', basicAuth);
+app.use('/api', basicAuth);
+
 // 1. Admin Page Router: "/admin"
 app.get('/admin', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'admin.html'));
