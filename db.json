@@ -1,0 +1,16 @@
+{
+  "apps": {
+    "innerverselink": {
+      "name": "Innerverse",
+      "iosUrl": "https://apps.apple.com/in/app/innerverse-memory-journal/id6768535080",
+      "androidUrl": "https://play.google.com/store/apps/details?id=com.innerverse.app&pcampaignid=web_share",
+      "fallbackUrl": "https://apps.apple.com/in/app/innerverse-memory-journal/id6768535080",
+      "stats": {
+        "iosClicks": 0,
+        "androidClicks": 0,
+        "fallbackClicks": 0,
+        "totalClicks": 0
+      }
+    }
+  }
+}

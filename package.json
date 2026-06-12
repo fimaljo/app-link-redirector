@@ -1,0 +1,15 @@
+{
+  "name": "app-link-redirector",
+  "version": "1.0.0",
+  "description": "Multi-platform direct app link redirector with admin dashboard configuration & analytics.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

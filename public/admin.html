@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-App Redirect Console</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="https://img.icons8.com/fluency/48/settings.png">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- CSS Stylesheet -->
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <div class="glow-blob blob-1"></div>
+    <div class="glow-blob blob-2"></div>
+
+    <div class="dashboard-wrapper">
+        <!-- 1. LEFT SIDEBAR: App List & Console Actions -->
+        <aside class="sidebar glassmorphism">
+            <div class="sidebar-header">
+                <div class="logo-box">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="url(#grad)" />
+                        <path d="M2 17L12 22L22 17M2 12L12 17L22 12" stroke="url(#grad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <defs>
+                            <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#a855f7" />
+                                <stop offset="100%" stop-color="#6366f1" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <div>
+                    <h2>App Console</h2>
+                    <span class="server-badge"><span class="pulse-dot"></span>Online</span>
+                </div>
+            </div>
+
+            <div class="sidebar-actions">
+                <button id="btn-show-add-form" class="add-app-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    New Redirect Link
+                </button>
+            </div>
+
+            <div class="app-list-container">
+                <h3>My Applications</h3>
+                <ul id="apps-list" class="apps-list">
+                    <!-- Dynamic rendering -->
+                </ul>
+            </div>
+            
+            <div class="sidebar-footer">
+                <p>Redirect Console &copy; <span id="current-year"></span></p>
+            </div>
+        </aside>
+
+        <!-- 2. RIGHT PANEL: Details & Analytics -->
+        <main class="main-panel">
+            <!-- Empty State Display -->
+            <div id="empty-state" class="empty-state-container glassmorphism" style="display: none;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                <h2>No App Selected</h2>
+                <p>Select an application from the sidebar or create a new redirect link to manage URLs and view analytics.</p>
+            </div>
+
+            <!-- Dashboard Content (Forms & Stats) -->
+            <div id="dashboard-content" class="dashboard-content">
+                
+                <!-- TOP HEADER -->
+                <div class="details-header glassmorphism">
+                    <div>
+                        <h1 id="selected-app-title">Application Name</h1>
+                        <p id="selected-app-slug-display" class="app-slug-tag">/slug-link</p>
+                    </div>
+                    <div class="header-actions">
+                        <button id="btn-delete-app" class="delete-btn">
+                            Delete Link
+                        </button>
+                    </div>
+                </div>
+
+                <div class="details-grid">
+                    <!-- LEFT COLUMN: Config Settings & QR -->
+                    <div class="col-left">
+                        <div class="card glassmorphism">
+                            <div class="card-header">
+                                <h3>Link Destination Settings</h3>
+                                <p>Manage the landing configurations for this application. Ensure they start with http:// or https://</p>
+                            </div>
+
+                            <form id="config-form" class="config-form">
+                                <input type="hidden" id="form-mode" value="edit"> <!-- "edit" or "create" -->
+                                
+                                <div class="form-group" id="group-app-name">
+                                    <label for="appName">App Name</label>
+                                    <input type="text" id="appName" required placeholder="e.g. Chat Messenger">
+                                </div>
+
+                                <div class="form-group" id="group-app-slug">
+                                    <label for="appSlug">URL Slug Link</label>
+                                    <input type="text" id="appSlug" required placeholder="e.g. chat-link" pattern="^[a-zA-Z0-9-_]+$" title="Only alphanumeric characters, hyphens, and underscores are allowed.">
+                                    <span class="input-hint">This creates the short link: yoursite.com/slug</span>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="iosUrl">iOS App Store URL</label>
+                                    <input type="url" id="iosUrl" required placeholder="https://apps.apple.com/app/id...">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="androidUrl">Android Play Store URL</label>
+                                    <input type="url" id="androidUrl" required placeholder="https://play.google.com/store/apps/details?id=...">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="fallbackUrl">Desktop Fallback URL</label>
+                                    <input type="url" id="fallbackUrl" required placeholder="https://mywebsite.com">
+                                </div>
+
+                                <div id="form-feedback" class="form-feedback"></div>
+
+                                <button type="submit" id="btn-save-settings" class="save-btn">
+                                    Save App Settings
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Live QR Panel -->
+                        <div class="card glassmorphism qr-card">
+                            <div class="card-header">
+                                <h3>Testing Link & QR Code</h3>
+                            </div>
+                            <div class="qr-layout">
+                                <div class="qr-frame">
+                                    <img id="test-qr" src="" alt="Testing QR Code">
+                                    <div class="qr-loader"></div>
+                                </div>
+                                <div class="qr-info">
+                                    <a id="redirect-url-anchor" href="#" target="_blank" class="qr-url-link">http://localhost:8000/slug</a>
+                                    <p>Scan this QR code with your mobile device to execute the redirection routing immediately.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT COLUMN: Analytics Counters & Chart -->
+                    <div class="col-right">
+                        <div class="stats-grid">
+                            <div class="stat-card glassmorphism border-purple">
+                                <div class="stat-meta">
+                                    <span>Total Clicks</span>
+                                    <span class="indicator ind-purple">All</span>
+                                </div>
+                                <div id="stat-total" class="stat-value">0</div>
+                            </div>
+
+                            <div class="stat-card glassmorphism border-indigo">
+                                <div class="stat-meta">
+                                    <span>iOS App Store</span>
+                                    <span class="indicator ind-indigo">iOS</span>
+                                </div>
+                                <div id="stat-ios" class="stat-value">0</div>
+                            </div>
+
+                            <div class="stat-card glassmorphism border-blue">
+                                <div class="stat-meta">
+                                    <span>Google Play</span>
+                                    <span class="indicator ind-blue">Android</span>
+                                </div>
+                                <div id="stat-android" class="stat-value">0</div>
+                            </div>
+
+                            <div class="stat-card glassmorphism border-slate">
+                                <div class="stat-meta">
+                                    <span>Desktop/Other</span>
+                                    <span class="indicator ind-slate">Fallback</span>
+                                </div>
+                                <div id="stat-fallback" class="stat-value">0</div>
+                            </div>
+                        </div>
+
+                        <!-- Graph Share -->
+                        <div class="card glassmorphism share-card">
+                            <div class="card-header">
+                                <h3>Visitor Platform Share</h3>
+                                <p>Relative split of redirected devices.</p>
+                            </div>
+                            <div class="chart-box">
+                                <div class="distribution-bar">
+                                    <div id="bar-ios" class="seg seg-ios" style="width: 33%"></div>
+                                    <div id="bar-android" class="seg seg-android" style="width: 33%"></div>
+                                    <div id="bar-fallback" class="seg seg-fallback" style="width: 34%"></div>
+                                </div>
+                                <div class="legend-list">
+                                    <div class="legend-row">
+                                        <span class="dot dot-ios"></span>
+                                        <span class="lbl">Apple Store</span>
+                                        <span id="percent-ios" class="val">0%</span>
+                                    </div>
+                                    <div class="legend-row">
+                                        <span class="dot dot-android"></span>
+                                        <span class="lbl">Google Play</span>
+                                        <span id="percent-android" class="val">0%</span>
+                                    </div>
+                                    <div class="legend-row">
+                                        <span class="dot dot-fallback"></span>
+                                        <span class="lbl">Desktop/Fallback</span>
+                                        <span id="percent-fallback" class="val">0%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="reset-box">
+                                <button id="btn-reset-stats" class="reset-btn">Reset Analytics</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Script Operations -->
+    <script>
+        document.getElementById("current-year").textContent = new Date().getFullYear();
+
+        let allApps = {};
+        let activeSlug = "";
+
+        // Elements
+        const appsListEl = document.getElementById("apps-list");
+        const emptyStateEl = document.getElementById("empty-state");
+        const dashboardContentEl = document.getElementById("dashboard-content");
+        
+        const configForm = document.getElementById("config-form");
+        const formModeInput = document.getElementById("form-mode");
+        const appNameInput = document.getElementById("appName");
+        const appSlugInput = document.getElementById("appSlug");
+        const iosUrlInput = document.getElementById("iosUrl");
+        const androidUrlInput = document.getElementById("androidUrl");
+        const fallbackUrlInput = document.getElementById("fallbackUrl");
+        
+        const formFeedback = document.getElementById("form-feedback");
+        const btnSaveSettings = document.getElementById("btn-save-settings");
+        const btnDeleteApp = document.getElementById("btn-delete-app");
+        const btnResetStats = document.getElementById("btn-reset-stats");
+        const btnShowAddForm = document.getElementById("btn-show-add-form");
+
+        // Load all apps config & statistics
+        async function loadApps(selectFirst = false) {
+            try {
+                const response = await fetch('/api/apps');
+                allApps = await response.json();
+                
+                renderAppsList();
+
+                const slugs = Object.keys(allApps);
+                if (slugs.length === 0) {
+                    emptyStateEl.style.display = "flex";
+                    dashboardContentEl.style.display = "none";
+                    activeSlug = "";
+                } else {
+                    emptyStateEl.style.display = "none";
+                    dashboardContentEl.style.display = "block";
+                    
+                    // Auto-select app
+                    if (selectFirst || !activeSlug || !allApps[activeSlug]) {
+                        selectApp(slugs[0]);
+                    } else {
+                        // Refresh active app stats
+                        selectApp(activeSlug);
+                    }
+                }
+            } catch (error) {
+                console.error("Error loading apps:", error);
+            }
+        }
+
+        // Render Sidebar Applications List
+        function renderAppsList() {
+            appsListEl.innerHTML = "";
+            Object.keys(allApps).forEach(slug => {
+                const app = allApps[slug];
+                const li = document.createElement("li");
+                li.className = `app-item ${slug === activeSlug ? 'active' : ''}`;
+                li.onclick = () => selectApp(slug);
+                
+                li.innerHTML = `
+                    <div class="app-item-info">
+                        <h4>${app.name}</h4>
+                        <span>/${slug}</span>
+                    </div>
+                    <span class="app-item-badge">${app.stats.totalClicks} clicks</span>
+                `;
+                appsListEl.appendChild(li);
+            });
+        }
+
+        // Select an App and display settings & analytics
+        function selectApp(slug) {
+            activeSlug = slug;
+            const app = allApps[slug];
+
+            // Render selected state in sidebar
+            document.querySelectorAll(".app-item").forEach(item => {
+                item.classList.remove("active");
+            });
+            renderAppsList();
+
+            // Set Form to Edit Mode
+            formModeInput.value = "edit";
+            document.getElementById("group-app-slug").style.display = "none"; // Hide slug in edit mode (immutable slug key)
+            appNameInput.value = app.name;
+            iosUrlInput.value = app.iosUrl;
+            androidUrlInput.value = app.androidUrl;
+            fallbackUrlInput.value = app.fallbackUrl;
+            
+            appSlugInput.removeAttribute("required");
+            appSlugInput.value = slug;
+
+            // Clear feedback
+            formFeedback.className = "form-feedback";
+            formFeedback.textContent = "";
+            btnSaveSettings.textContent = "Save App Settings";
+            btnDeleteApp.style.display = "inline-block";
+
+            // Headers
+            document.getElementById("selected-app-title").textContent = app.name;
+            document.getElementById("selected-app-slug-display").textContent = `/${slug}`;
+
+            // Stats
+            renderStats(app.stats);
+
+            // QR & URLs
+            const redirectUrl = `${window.location.origin}/${slug}`;
+            const anchor = document.getElementById("redirect-url-anchor");
+            anchor.href = redirectUrl;
+            anchor.textContent = redirectUrl;
+
+            const qrImg = document.getElementById("test-qr");
+            document.querySelector(".qr-loader").style.display = "block";
+            qrImg.style.opacity = "0";
+            qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(redirectUrl)}&color=ffffff&bgcolor=1e1b4b&margin=10`;
+            qrImg.onload = function() {
+                document.querySelector(".qr-loader").style.display = "none";
+                qrImg.style.opacity = "1";
+            };
+        }
+
+        // Render Stats Counters and charts
+        function renderStats(stats) {
+            const total = stats.totalClicks || 0;
+            const ios = stats.iosClicks || 0;
+            const android = stats.androidClicks || 0;
+            const fallback = stats.fallbackClicks || 0;
+
+            document.getElementById("stat-total").textContent = total.toLocaleString();
+            document.getElementById("stat-ios").textContent = ios.toLocaleString();
+            document.getElementById("stat-android").textContent = android.toLocaleString();
+            document.getElementById("stat-fallback").textContent = fallback.toLocaleString();
+
+            const iosPercent = total > 0 ? Math.round((ios / total) * 100) : 0;
+            const androidPercent = total > 0 ? Math.round((android / total) * 100) : 0;
+            const fallbackPercent = total > 0 ? (100 - iosPercent - androidPercent) : 0;
+
+            const barIos = document.getElementById("bar-ios");
+            const barAndroid = document.getElementById("bar-android");
+            const barFallback = document.getElementById("bar-fallback");
+
+            if (total === 0) {
+                barIos.style.width = "33.3%";
+                barAndroid.style.width = "33.3%";
+                barFallback.style.width = "33.4%";
+                
+                document.getElementById("percent-ios").textContent = "0%";
+                document.getElementById("percent-android").textContent = "0%";
+                document.getElementById("percent-fallback").textContent = "0%";
+            } else {
+                barIos.style.width = `${iosPercent}%`;
+                barAndroid.style.width = `${androidPercent}%`;
+                barFallback.style.width = `${fallbackPercent}%`;
+
+                document.getElementById("percent-ios").textContent = `${iosPercent}%`;
+                document.getElementById("percent-android").textContent = `${androidPercent}%`;
+                document.getElementById("percent-fallback").textContent = `${fallbackPercent}%`;
+            }
+        }
+
+        // Set Form to "Create" App Mode
+        btnShowAddForm.addEventListener("click", () => {
+            // Remove active states in sidebar
+            document.querySelectorAll(".app-item").forEach(item => {
+                item.classList.remove("active");
+            });
+
+            // Toggle UI Pane to show Form
+            emptyStateEl.style.display = "none";
+            dashboardContentEl.style.display = "block";
+
+            // Set mode
+            formModeInput.value = "create";
+            document.getElementById("group-app-slug").style.display = "flex"; // Show slug input
+            appSlugInput.setAttribute("required", "true");
+
+            // Empty form fields
+            appNameInput.value = "";
+            appSlugInput.value = "";
+            iosUrlInput.value = "";
+            androidUrlInput.value = "";
+            fallbackUrlInput.value = "";
+
+            // Adjust headers
+            document.getElementById("selected-app-title").textContent = "Create New Redirect Link";
+            document.getElementById("selected-app-slug-display").textContent = "/[your-custom-slug]";
+            btnSaveSettings.textContent = "Create Redirect Link";
+            
+            // Hide delete and reset components in creation mode
+            btnDeleteApp.style.display = "none";
+
+            // Empty stats UI
+            renderStats({ iosClicks: 0, androidClicks: 0, fallbackClicks: 0, totalClicks: 0 });
+
+            // Empty QR code
+            document.getElementById("test-qr").src = "";
+            document.getElementById("redirect-url-anchor").textContent = "Create link to generate URL & QR Code";
+            document.getElementById("redirect-url-anchor").removeAttribute("href");
+        });
+
+        // Submit form (Save / Create app)
+        configForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            formFeedback.className = "form-feedback";
+            formFeedback.textContent = "";
+
+            const payload = {
+                slug: appSlugInput.value.trim(),
+                name: appNameInput.value.trim(),
+                iosUrl: iosUrlInput.value.trim(),
+                androidUrl: androidUrlInput.value.trim(),
+                fallbackUrl: fallbackUrlInput.value.trim()
+            };
+
+            try {
+                const response = await fetch('/api/apps', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+
+                if (response.ok) {
+                    formFeedback.classList.add("feedback-success");
+                    formFeedback.textContent = result.message || "App settings saved successfully!";
+                    
+                    // Reload and select app
+                    const savedSlug = payload.slug.toLowerCase();
+                    activeSlug = savedSlug;
+                    await loadApps(false);
+                } else {
+                    formFeedback.classList.add("feedback-error");
+                    formFeedback.textContent = result.error || "Failed to save configuration.";
+                }
+            } catch (error) {
+                formFeedback.classList.add("feedback-error");
+                formFeedback.textContent = "Server connection failure.";
+            }
+        });
+
+        // Delete App
+        btnDeleteApp.addEventListener("click", async () => {
+            if (!activeSlug) return;
+            if (!confirm(`Are you sure you want to delete the redirect link '/${activeSlug}'? This will delete all settings and click statistics.`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/apps/${activeSlug}`, { method: 'DELETE' });
+                if (response.ok) {
+                    activeSlug = "";
+                    await loadApps(true);
+                    alert("Application link deleted.");
+                } else {
+                    alert("Error deleting application.");
+                }
+            } catch (error) {
+                console.error("Delete error:", error);
+            }
+        });
+
+        // Reset Stats
+        btnResetStats.addEventListener("click", async () => {
+            if (!activeSlug) return;
+            if (!confirm(`Are you sure you want to reset all click counters for '/${activeSlug}'?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/apps/${activeSlug}/reset`, { method: 'POST' });
+                const result = await response.json();
+                if (response.ok) {
+                    allApps[activeSlug] = result.app;
+                    renderStats(result.app.stats);
+                    renderAppsList();
+                    alert("App click data cleared!");
+                } else {
+                    alert("Failed to reset statistics.");
+                }
+            } catch (error) {
+                console.error("Reset error:", error);
+            }
+        });
+
+        // Initialize loading
+        window.addEventListener("DOMContentLoaded", () => {
+            loadApps(true);
+            
+            // Poll for click data stats updates every 8 seconds
+            setInterval(() => {
+                if (formModeInput.value === "edit") {
+                    loadApps(false);
+                }
+            }, 8000);
+        });
+    </script>
+</body>
+</html>
